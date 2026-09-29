@@ -1,0 +1,14 @@
+{
+  "name": "idle-buster",
+  "version": "1.0.0",
+  "description": "Keeps your PC awake by nudging the mouse at random intervals during working hours.",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "keywords": ["keep-awake", "idle", "standby", "sleep", "robotjs"],
+  "license": "MIT",
+  "dependencies": {
+    "robotjs": "^0.6.0"
+  }
+}
