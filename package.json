@@ -6,9 +6,16 @@
   "scripts": {
     "start": "node index.js"
   },
-  "keywords": ["keep-awake", "idle", "standby", "sleep", "robotjs"],
+  "keywords": [
+    "keep-awake",
+    "idle",
+    "standby",
+    "sleep",
+    "robotjs"
+  ],
   "license": "MIT",
   "dependencies": {
+    "desktop-idle": "^1.3.0",
     "robotjs": "^0.6.0"
   }
 }

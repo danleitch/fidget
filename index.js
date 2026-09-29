@@ -1,13 +1,11 @@
 const robot = require("robotjs");
+const desktopIdle = require("desktop-idle");
 
-const START_HOUR = 8;  // 8am
-const END_HOUR = 17;   // 5pm
-const MIN_MS = 60 * 1000;   // 1 min
-const MAX_MS = 270 * 1000;  // 4.5 min
-
-function randomDelay() {
-  return Math.floor(Math.random() * (MAX_MS - MIN_MS + 1)) + MIN_MS;
-}
+const START_HOUR = 8;          // 8am
+const END_HOUR = 17;           // 5pm
+const IDLE_MS = 3 * 60 * 1000; // only nudge after 3 min of no mouse or keyboard input
+const POLL_MS = 5 * 1000;      // how often to check the idle time
+const CLICK = true;            // set to false if you don't want clicks
 
 function tick() {
   const hour = new Date().getHours();
@@ -17,16 +15,18 @@ function tick() {
     process.exit(0);
   }
 
-  if (hour >= START_HOUR) {
+  // OS-level idle time covers typing as well as mouse movement.
+  const idleMs = desktopIdle.getIdleTime() * 1000;
+
+  if (hour >= START_HOUR && idleMs >= IDLE_MS) {
     const { x, y } = robot.getMousePos();
     robot.moveMouse(x + 5, y);
     robot.moveMouse(x, y);
-    robot.mouseClick(); // remove this line if you don't want clicks
+    if (CLICK) robot.mouseClick();
+    // The nudge resets the OS idle timer, so the next one is IDLE_MS away.
+    console.log("Idle detected, nudged mouse.");
   }
-
-  const delay = randomDelay();
-  console.log(`Next run in ${(delay / 1000).toFixed(0)}s`);
-  setTimeout(tick, delay);
 }
 
+setInterval(tick, POLL_MS);
 tick();
