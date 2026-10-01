@@ -12,6 +12,9 @@
 - **Only acts when you're idle** – reads the OS idle timer (mouse **and** keyboard) and stays out of the way while you work.
 - **Steady cadence** – once idle, it nudges every `IDLE_MS` (3 minutes) for as long as you stay away.
 - **Working-hours aware** – only active after 8:00 AM and exits automatically at 5:00 PM.
+- **Lunch break** – pauses between 1:00 PM and 2:00 PM, with a random 1–10 minute offset on each end so it never pauses on the dot.
+- **Sleeps your PC at the end of the day** – suspends the machine at 5:00 PM before exiting.
+- **Readable log** – timestamped, emoji-tagged lines like `[09:15] 🖱️  Idle detected, nudged mouse.`
 - **Invisible movement** – the cursor moves 5px and returns straight away.
 - **Optional click** – easily disabled with a one-line change.
 - **Zero config** – one file, one dependency.
@@ -48,10 +51,16 @@ npm start
 
 Example output:
 
-```
-Idle detected, nudged mouse.
-Idle detected, nudged mouse.
-Past 5pm, stopping.
+```text
+[08:30] 🚀  idle-buster started.
+[08:30] ⚙️  Active 08:00 - 17:00, nudging after 3 min idle, click on, sleep at 17:00 on.
+[08:30] 🍽️  Lunch break planned for 13:04 - 14:09.
+[09:12] 🖱️  Idle detected, nudged mouse.
+[09:15] 🖱️  Idle detected, nudged mouse.
+[13:04] 🍽️  Lunch break - pausing until 14:09.
+[14:09] ▶️  Lunch over, back on.
+[17:00] 🛑  Past 5pm, stopping.
+[17:00] 😴  Putting the machine to sleep.
 ```
 
 Stop it any time with `Ctrl + C`.
@@ -60,30 +69,50 @@ Stop it any time with `Ctrl + C`.
 
 Edit the constants at the top of `index.js`:
 
-| Setting      | Default    | Description                                            |
-| ------------ | ---------- | ------------------------------------------------------ |
-| `START_HOUR` | `8`        | Hour (24h clock) after which activity begins           |
-| `END_HOUR`   | `17`       | Hour (24h clock) at which the script exits             |
-| `IDLE_MS`    | `180000`   | No mouse/keyboard input for this long (3 min) before a nudge   |
-| `POLL_MS`    | `5000`     | How often the idle time is checked (5 seconds)    |
-| `CLICK`      | `true`     | Whether to also click after nudging                    |
+| Setting             | Default  | Description                                                           |
+| ------------------- | -------- | --------------------------------------------------------------------- |
+| `START_HOUR`        | `8`      | Hour (24h clock) after which activity begins                          |
+| `END_HOUR`          | `17`     | Hour (24h clock) at which the script stops                            |
+| `IDLE_MS`           | `180000` | No mouse/keyboard input for this long (3 min) before a nudge          |
+| `POLL_MS`           | `5000`   | How often the idle time is checked (5 seconds)                        |
+| `CLICK`             | `true`   | Whether to also click after nudging                                   |
+| `LUNCH_START_HOUR`  | `13`     | Hour in which the lunch pause begins                                  |
+| `LUNCH_END_HOUR`    | `14`     | Hour in which the lunch pause ends                                    |
+| `LUNCH_JITTER_MIN`  | `1`      | Fewest random minutes added to each end of the lunch window           |
+| `LUNCH_JITTER_MAX`  | `10`     | Most random minutes added to each end of the lunch window             |
+| `SLEEP_AT_END`      | `true`   | Put the machine to sleep at `END_HOUR` before exiting                 |
 
 ### Disable the click
 
 If you only want mouse movement, set `CLICK = false` in `index.js`.
+
+### Lunch break
+
+Each day the script picks a fresh start and end time for the pause – somewhere
+between 1:00–1:10 PM and 2:00–2:10 PM – so the break never lands on the same
+minute twice. It logs the planned window on startup and does nothing at all
+until lunch is over.
+
+### Skip the end-of-day sleep
+
+Set `SLEEP_AT_END = false` if you want the script to just exit at 5 PM and leave
+the machine running. The sleep uses `rundll32 powrprof.dll,SetSuspendState` on
+Windows, `pmset sleepnow` on macOS, and `systemctl suspend` on Linux.
 
 > **Tip:** keep `IDLE_MS` comfortably below your PC's sleep/lock timeout (e.g. use 3 minutes for a 5-minute timer).
 
 ## 🔍 How it works
 
 1. Every `POLL_MS` the script checks the current hour and the OS idle time (time since your last mouse or keyboard input).
-2. If it's past `END_HOUR`, it exits.
-3. If you've used the mouse or keyboard recently, nothing happens.
-4. If you've been idle for `IDLE_MS` (and it's past `START_HOUR`), it moves the cursor 5px, moves it back, and (optionally) clicks. This resets the OS idle timer, so the next nudge is another `IDLE_MS` away.
+2. If it's past `END_HOUR`, it puts the machine to sleep (unless `SLEEP_AT_END` is off) and exits.
+3. If you're inside today's lunch window, it does nothing until the window closes.
+4. If you've used the mouse or keyboard recently, nothing happens.
+5. If you've been idle for `IDLE_MS` (and it's past `START_HOUR`), it moves the cursor 5px, moves it back, and (optionally) clicks. This resets the OS idle timer, so the next nudge is another `IDLE_MS` away.
 
 ## ⚠️ Notes
 
 - The optional click happens wherever the cursor currently is – be careful it isn't resting over something you don't want clicked.
+- The 5 PM sleep suspends the machine, so save your work before then or set `SLEEP_AT_END = false`.
 - Please use this responsibly and in line with your employer's policies. It is intended to keep your own machine awake, not to misrepresent activity.
 
 ## 📄 License
