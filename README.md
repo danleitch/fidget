@@ -20,7 +20,7 @@
 
 - [Node.js](https://nodejs.org/) 14 or newer
 - Build tools required by the native modules [`robotjs`](https://github.com/octalmage/robotjs) and [`desktop-idle`](https://github.com/bithavoc/node-desktop-idle):
-  - **Windows:** `npm install --global windows-build-tools` (or Visual Studio Build Tools)
+  - **Windows:** Python 3 and [Visual Studio 2022 Build Tools](https://visualstudio.microsoft.com/visual-cpp-build-tools/) with the **Desktop development with C++** workload selected
   - **macOS:** Xcode Command Line Tools (`xcode-select --install`) and grant *Accessibility* permission to your terminal
   - **Linux:** `sudo apt install libxtst-dev libpng++-dev build-essential` and an X11 session
 
@@ -31,6 +31,14 @@ git clone https://github.com/danleitch/idle-buster.git
 cd idle-buster
 npm install
 ```
+
+On Windows, close and reopen your terminal after installing Python and Visual Studio Build Tools. If you are using Git Bash and npm cannot find Python, run:
+
+```bash
+npm_config_python="$HOME/AppData/Local/Programs/Python/Python312/python.exe" npm install
+```
+
+The Visual Studio installer must include the **Desktop development with C++** workload. Both `robotjs` and `desktop-idle` contain native code and need this compiler toolchain during installation.
 
 ## ▶️ Usage
 
