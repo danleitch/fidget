@@ -1,5 +1,5 @@
 {
-  "name": "idle-buster",
+  "name": "fidget",
   "version": "1.0.0",
   "description": "Keeps your PC awake by nudging the mouse at random intervals during working hours.",
   "main": "index.js",

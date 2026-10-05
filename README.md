@@ -1,4 +1,4 @@
-# 🖱️ idle-buster
+# 🖱️ fidget
 
 > A tiny Node.js script that stops your PC from going into standby, sleep, or "away" mode by gently nudging the mouse, but only when you've stopped using your mouse and keyboard.
 
@@ -30,8 +30,8 @@
 ## 🚀 Installation
 
 ```bash
-git clone https://github.com/danleitch/idle-buster.git
-cd idle-buster
+git clone https://github.com/danleitch/fidget.git
+cd fidget
 npm install
 ```
 
@@ -54,7 +54,7 @@ npm start
 Example output:
 
 ```text
-[08:30] 🚀  idle-buster started.
+[08:30] 🚀  fidget started.
 [08:30] ⚙️  Active 08:00 - 17:00, nudging after 3 min idle, click on, sleep at 17:00 on.
 [08:30] 🍽️  Lunch break planned for 13:04 - 14:09.
 [09:12] 🖱️  Idle detected, nudged mouse.

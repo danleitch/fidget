@@ -81,7 +81,7 @@ function tick() {
 
 function start() {
   const startedAt = new Date();
-  log("🚀", "idle-buster started.", startedAt);
+  log("🚀", "fidget started.", startedAt);
   log(
     "⚙️",
     `Active ${String(START_HOUR).padStart(2, "0")}:00 - ${String(END_HOUR).padStart(2, "0")}:00, ` +

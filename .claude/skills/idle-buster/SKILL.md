@@ -1,9 +1,9 @@
 ---
-name: idle-buster
-description: Install, configure, run, and troubleshoot idle-buster — the Node script that keeps a PC awake by nudging the mouse during idle periods. Use when asked to get idle-buster running, fix a failed `npm install` of robotjs or desktop-idle, change the working hours, lunch break, nudge interval, or end-of-day sleep behaviour.
+name: fidget
+description: Install, configure, run, and troubleshoot fidget — the Node script that keeps a PC awake by nudging the mouse during idle periods. Use when asked to get fidget running, fix a failed `npm install` of robotjs or desktop-idle, change the working hours, lunch break, nudge interval, or end-of-day sleep behaviour.
 ---
 
-# idle-buster
+# fidget
 
 A small Node script (`index.js` starts it; the code lives in `src/`) that polls
 the OS idle timer and nudges the mouse, keyboard and scroll wheel when the user
