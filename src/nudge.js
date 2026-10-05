@@ -6,12 +6,15 @@ const {
   KEYS_CHANCE,
   SCROLL,
   SCROLL_CHANCE,
+  ALT_TAB,
+  ALT_TAB_CHANCE,
 } = require("./config");
 const { rand, sleep } = require("./util");
 const { log } = require("./logger");
 const { pickTarget, moveHumanLike } = require("./mouse");
 const { scrollGesture } = require("./scroll");
 const { typeBurst } = require("./keyboard");
+const { altTab } = require("./alttab");
 
 async function nudge(now) {
   const did = [];
@@ -24,6 +27,12 @@ async function nudge(now) {
     await sleep(rand(200, 600));
     await scrollGesture();
     did.push("scroll");
+  }
+
+  if (ALT_TAB && Math.random() < ALT_TAB_CHANCE) {
+    await sleep(rand(300, 900));
+    await altTab();
+    did.push("alt-tab");
   }
 
   if (KEYBOARD && Math.random() < KEYS_CHANCE) {

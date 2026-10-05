@@ -82,6 +82,9 @@ Edit the constants in `src/config.js`:
 | `LUNCH_END_HOUR`    | `14`     | Hour in which the lunch pause ends                                    |
 | `LUNCH_JITTER_MIN`  | `1`      | Fewest random minutes added to each end of the lunch window           |
 | `LUNCH_JITTER_MAX`  | `10`     | Most random minutes added to each end of the lunch window             |
+| `ALT_TAB`           | `true`   | Occasionally Alt+Tab to the previous window and back                  |
+| `ALT_TAB_CHANCE`    | `0.3`    | Chance a nudge includes a window switch                               |
+| `ALT_TAB_MIN_MS` / `ALT_TAB_MAX_MS` | `1500` / `5000` | How long to linger on the other window before switching back |
 | `SLEEP_AT_END`      | `true`   | Put the machine to sleep at `END_HOUR` before exiting                 |
 | `LOGGING`           | `true`   | Print status messages to the console; `false` runs silently           |
 
@@ -119,6 +122,7 @@ src/
   mouse.js          Bézier-curve cursor movement
   keyboard.js       human-timed key bursts
   scroll.js         decelerating scroll flick and scroll-back
+  alttab.js         Alt+Tab to the previous window and back (Cmd+Tab on macOS)
   lunch.js          picks each day's jittered lunch window
   power.js          per-platform suspend command
   robot.js          loads robotjs and sets its delays once
