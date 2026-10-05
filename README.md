@@ -17,7 +17,7 @@
 - **Readable log** – timestamped, emoji-tagged lines like `[09:15] 🖱️  Idle detected, nudged mouse.`
 - **Invisible movement** – the cursor moves 5px and returns straight away.
 - **Optional click** – easily disabled with a one-line change.
-- **Zero config** – one file, one dependency.
+- **Zero config** – all settings in one small file, two dependencies.
 
 ## 📋 Requirements
 
@@ -40,6 +40,8 @@ On Windows, close and reopen your terminal after installing Python and Visual St
 ```bash
 npm_config_python="$HOME/AppData/Local/Programs/Python/Python312/python.exe" npm install
 ```
+
+If `npm start` fails with `Cannot find module './build/Release/robotjs.node'`, the install finished without compiling the native modules. Run `npm rebuild robotjs desktop-idle` (with the Python path above if needed) and read any compiler errors. On Windows, `winget install Python.Python.3.12` and `winget install Microsoft.VisualStudio.2022.BuildTools --override "--quiet --wait --add Microsoft.VisualStudio.Workload.VCTools --includeRecommended"` set up the toolchain. Note node-gyp rejects Python 3.8 and older.
 
 The Visual Studio installer must include the **Desktop development with C++** workload. Both `robotjs` and `desktop-idle` contain native code and need this compiler toolchain during installation.
 
@@ -67,7 +69,7 @@ Stop it any time with `Ctrl + C`.
 
 ## ⚙️ Configuration
 
-Edit the constants at the top of `index.js`:
+Edit the constants in `src/config.js`:
 
 | Setting             | Default  | Description                                                           |
 | ------------------- | -------- | --------------------------------------------------------------------- |
@@ -85,11 +87,11 @@ Edit the constants at the top of `index.js`:
 
 ### Silent mode
 
-Set `LOGGING = false` in `index.js` to run with no console output at all (including the startup summary and any warnings).
+Set `LOGGING = false` in `src/config.js` to run with no console output at all (including the startup summary and any warnings).
 
 ### Disable the click
 
-If you only want mouse movement, set `CLICK = false` in `index.js`.
+If you only want mouse movement, set `CLICK = false` in `src/config.js`.
 
 ### Lunch break
 
@@ -105,6 +107,24 @@ the machine running. The sleep uses `rundll32 powrprof.dll,SetSuspendState` on
 Windows, `pmset sleepnow` on macOS, and `systemctl suspend` on Linux.
 
 > **Tip:** keep `IDLE_MS` comfortably below your PC's sleep/lock timeout (e.g. use 3 minutes for a 5-minute timer).
+
+## 🗂️ Project layout
+
+```text
+index.js            entry point – just starts the scheduler
+src/
+  config.js         every user-editable setting
+  scheduler.js      the poll loop: working hours, lunch, idle check, startup banner
+  nudge.js          one nudge = mouse move + optional scroll, keys and click
+  mouse.js          Bézier-curve cursor movement
+  keyboard.js       human-timed key bursts
+  scroll.js         decelerating scroll flick and scroll-back
+  lunch.js          picks each day's jittered lunch window
+  power.js          per-platform suspend command
+  robot.js          loads robotjs and sets its delays once
+  logger.js         timestamped, emoji-tagged console output
+  util.js           rand, sleep, hhmm helpers
+```
 
 ## 🔍 How it works
 

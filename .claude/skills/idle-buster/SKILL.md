@@ -5,10 +5,15 @@ description: Install, configure, run, and troubleshoot idle-buster — the Node 
 
 # idle-buster
 
-A single-file Node script (`index.js`) that polls the OS idle timer and moves the
-mouse 5px when the user has been away, so the machine does not sleep or lock.
-It is working-hours aware, pauses over lunch, and can suspend the machine at the
-end of the day.
+A small Node script (`index.js` starts it; the code lives in `src/`) that polls
+the OS idle timer and nudges the mouse, keyboard and scroll wheel when the user
+has been away, so the machine does not sleep or lock. It is working-hours aware,
+pauses over lunch, and can suspend the machine at the end of the day.
+
+Where things live: `src/config.js` (all settings), `src/scheduler.js` (the poll
+loop in `tick()`), `src/nudge.js` (one nudge), `src/mouse.js` / `keyboard.js` /
+`scroll.js` (the input behaviours), `src/lunch.js`, `src/power.js` (suspend
+command), `src/robot.js` (robotjs setup), `src/logger.js`, `src/util.js`.
 
 ## Getting it running
 
@@ -34,13 +39,15 @@ install step compiles C++. A missing toolchain is the usual failure.
 | ------- | --- |
 | `gyp ERR! find Python` in Git Bash | `npm_config_python="$HOME/AppData/Local/Programs/Python/Python312/python.exe" npm install` |
 | `MSB4019` / missing `Microsoft.Cpp.Default.props` | The C++ workload is not installed — rerun the VS Build Tools installer and tick *Desktop development with C++* |
+| `gyp ERR! find Python ... NOT SUPPORTED` | Only an old Python (e.g. 3.8) is found — `winget install Python.Python.3.12`, then point `npm_config_python` at it |
+| `Cannot find module './build/Release/robotjs.node'` | `npm install` finished without compiling — run `npm rebuild robotjs desktop-idle` |
 | `Cannot find module 'robotjs'` at runtime | `npm install` never completed; re-run it and read the compile errors, do not ignore them |
 | Script runs but the cursor never moves (macOS) | Accessibility permission missing for the terminal |
 
 ## Configuration
 
-All settings are constants at the top of `index.js` — there is no config file
-and no CLI flags. To change behaviour, edit the constant.
+All settings are constants in `src/config.js` — there are no CLI flags. To
+change behaviour, edit the constant.
 
 | Constant | Default | Meaning |
 | -------- | ------- | ------- |
@@ -81,6 +88,9 @@ active hours and settings; lunch, resume, stop, and sleep each get their own lin
 - `CLICK` clicks wherever the cursor happens to rest — warn the user before
   enabling it if that matters.
 - Lunch state is tracked with `onLunch` so the pause/resume lines log once per
-  transition, not on every poll. Preserve that if you refactor `tick()`.
+  transition, not on every poll. Preserve that if you refactor `tick()` in
+  `src/scheduler.js`.
+- The scheduler owns the run state (`nudging`, `stopping`, `timer`); `nudge()`
+  and `suspendMachine()` are stateless and just do their one job.
 - The lunch plan is keyed on `toDateString()`, which is what makes an overnight
   run re-roll the jitter for the new day.
