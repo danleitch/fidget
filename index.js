@@ -12,6 +12,7 @@ const LUNCH_END_HOUR = 14;     // and come back at 2pm
 const LUNCH_JITTER_MIN = 1;    // the lunch window starts/ends this many minutes late, at least
 const LUNCH_JITTER_MAX = 10;   // ...and at most, picked fresh each day
 const SLEEP_AT_END = true;     // put the machine to sleep when the day finishes
+const LOGGING = true;          // set to false to run silently with no console output
 
 function hhmm(date) {
   const h = String(date.getHours()).padStart(2, "0");
@@ -20,6 +21,7 @@ function hhmm(date) {
 }
 
 function log(emoji, message, at = new Date()) {
+  if (!LOGGING) return;
   console.log(`[${hhmm(at)}] ${emoji}  ${message}`);
 }
 
