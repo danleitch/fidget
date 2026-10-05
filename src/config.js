@@ -37,17 +37,13 @@ const SCROLL = true;
 const SCROLL_CHANCE = 0.6;           // chance a nudge includes a scroll gesture
 const SCROLL_STEP = 1;               // size of one wheel notch; tune if too fast/slow on your OS
 
-// Alt+Tab: flip to the previous window, wait, then flip back.
+// Alt+Tab: flip to the previous window.
 const ALT_TAB = true;
 const ALT_TAB_CHANCE = 0.3;          // chance a nudge includes a window switch
-const ALT_TAB_MIN_MS = 1500;         // how long to stay on the other window
-const ALT_TAB_MAX_MS = 5000;
 
 module.exports = {
   ALT_TAB,
   ALT_TAB_CHANCE,
-  ALT_TAB_MIN_MS,
-  ALT_TAB_MAX_MS,
   START_HOUR,
   END_HOUR,
   IDLE_MS,
