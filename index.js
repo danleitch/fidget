@@ -24,7 +24,23 @@ const SCREEN_PRESETS = {
 };
 const EDGE_MARGIN = 20;              // keep targets this far from the screen edge
 
+// Keyboard activity: short bursts of key presses with uneven, human-ish timing.
+const KEYBOARD = true;
+const KEYS_CHANCE = 0.6;             // chance a nudge includes a key burst
+const KEY_BURST_MIN = 3;             // keys per burst
+const KEY_BURST_MAX = 12;
+// Keys that do nothing visible. F15 is absent from most keyboards and unbound
+// by default on Windows/Linux. On macOS try "f13" if F15 triggers anything.
+// Avoid Shift: five quick taps pop up the Windows Sticky Keys dialog.
+const KEY_POOL = ["f15"];
+
+// Natural scrolling: a quick flick that decelerates, a pause, then a scroll back.
+const SCROLL = true;
+const SCROLL_CHANCE = 0.6;           // chance a nudge includes a scroll gesture
+const SCROLL_STEP = 1;               // size of one wheel notch; tune if too fast/slow on your OS
+
 robot.setMouseDelay(1);
+robot.setKeyboardDelay(1);
 
 function hhmm(date) {
   const h = String(date.getHours()).padStart(2, "0");
@@ -142,19 +158,93 @@ async function moveHumanLike(target) {
   }
 }
 
+// ---------- Human-like keyboard activity ----------
+
+// Gaps between keystrokes follow a log-normal shape: most are short, a few are
+// long, which is much closer to real typing than a uniform random delay.
+function typingGap() {
+  const u1 = Math.random() || 1e-9;
+  const u2 = Math.random();
+  const normal = Math.sqrt(-2 * Math.log(u1)) * Math.cos(2 * Math.PI * u2);
+  const gap = Math.exp(Math.log(170) + 0.5 * normal); // median ~170 ms
+  return Math.min(Math.max(gap, 45), 900);
+}
+
+async function pressKey(key) {
+  robot.keyToggle(key, "down");
+  try {
+    await sleep(rand(40, 115)); // key hold time varies too
+  } finally {
+    robot.keyToggle(key, "up"); // never leave a key stuck down
+  }
+}
+
+async function typeBurst() {
+  const count = Math.round(rand(KEY_BURST_MIN, KEY_BURST_MAX));
+  for (let i = 0; i < count; i++) {
+    const key = KEY_POOL[Math.floor(Math.random() * KEY_POOL.length)];
+    await pressKey(key);
+    await sleep(typingGap());
+    // Now and then, stop mid-burst as if thinking or reading.
+    if (Math.random() < 0.12) await sleep(rand(600, 1800));
+  }
+}
+
+// ---------- Natural scrolling ----------
+
+// A run of wheel notches that starts quick and slows down, like a flick.
+async function scrollRun(direction, notches) {
+  let delay = rand(15, 40);
+  for (let i = 0; i < notches; i++) {
+    robot.scrollMouse(0, direction * SCROLL_STEP);
+    await sleep(delay);
+    delay *= rand(1.1, 1.45); // decelerate
+  }
+}
+
+// Scroll one way, pause as if reading, then scroll most of the way back. The
+// sign convention differs between OSes and natural-scrolling settings, but
+// because the gesture undoes itself the page never drifts far either way.
+async function scrollGesture() {
+  const direction = Math.random() < 0.5 ? 1 : -1;
+  const notches = Math.round(rand(3, 9));
+  await scrollRun(direction, notches);
+  await sleep(rand(800, 2500));
+  await scrollRun(-direction, Math.max(1, Math.round(notches * rand(0.8, 1.1))));
+}
+
+// ---------- Nudge ----------
+
 let nudging = false;
 
 async function nudge(now) {
   nudging = true;
+  const did = [];
   try {
     const { x, y } = robot.getMousePos();
     await moveHumanLike(pickTarget(x, y));
+    did.push("mouse");
+
+    if (SCROLL && Math.random() < SCROLL_CHANCE) {
+      await sleep(rand(200, 600));
+      await scrollGesture();
+      did.push("scroll");
+    }
+
+    if (KEYBOARD && Math.random() < KEYS_CHANCE) {
+      await sleep(rand(300, 900));
+      await typeBurst();
+      did.push("keys");
+    }
+
     if (CLICK) {
       await sleep(rand(60, 200)); // short settle before clicking
       robot.mouseClick();
+      did.push("click");
     }
+
     // The nudge resets the OS idle timer, so the next one is IDLE_MS away.
-    log("🖱️", `Idle detected, moved mouse (${SCREEN_PRESET} preset).`, now);
+    log("🖱️", `Idle detected (${SCREEN_PRESET} preset): ${did.join(" + ")}.`, now);
   } finally {
     nudging = false;
   }
@@ -241,6 +331,7 @@ log(
   "⚙️",
   `Active ${String(START_HOUR).padStart(2, "0")}:00 - ${String(END_HOUR).padStart(2, "0")}:00, ` +
     `nudging after ${IDLE_MS / 60000} min idle, preset ${SCREEN_PRESET}, click ${CLICK ? "on" : "off"}, ` +
+    `keys ${KEYBOARD ? "on" : "off"}, scroll ${SCROLL ? "on" : "off"}, ` +
     `sleep at ${String(END_HOUR).padStart(2, "0")}:00 ${SLEEP_AT_END ? "on" : "off"}.`,
   startedAt
 );
