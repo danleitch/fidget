@@ -81,6 +81,11 @@ Edit the constants at the top of `index.js`:
 | `LUNCH_JITTER_MIN`  | `1`      | Fewest random minutes added to each end of the lunch window           |
 | `LUNCH_JITTER_MAX`  | `10`     | Most random minutes added to each end of the lunch window             |
 | `SLEEP_AT_END`      | `true`   | Put the machine to sleep at `END_HOUR` before exiting                 |
+| `LOGGING`           | `true`   | Print status messages to the console; `false` runs silently           |
+
+### Silent mode
+
+Set `LOGGING = false` in `index.js` to run with no console output at all (including the startup summary and any warnings).
 
 ### Disable the click
 
